@@ -14,7 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-   
+  
     - name: Install OpenShift CLI
       run: |
         curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
@@ -22,7 +22,7 @@ jobs:
         sudo mv oc /usr/local/bin/
         oc version
 
-   
+    
     - name: Login to OpenShift
       env:
         OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
@@ -30,27 +30,33 @@ jobs:
         oc login https://api.rm2.thpm.p1.openshiftapps.com:6443 --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify
 
    
+    - name: Switch to pnkoe-dev namespace
+      run: |
+        oc project pnkoe-dev
+
+ 
     - name: Delete old build config
       run: |
         oc delete bc my-node-endpoint || true
 
-  
+    
     - name: Build Docker image in OpenShift
       run: |
         oc new-build --name=my-node-endpoint --binary --strategy=docker
         oc start-build my-node-endpoint --from-dir=. --follow
 
-  
+   
     - name: Apply Deployment
       run: |
         oc apply -f k8s/deployment.yaml
 
-    
+  
     - name: Expose route
       run: |
         oc expose svc my-node-endpoint || true
 
-  
+
     - name: Get route URL
       run: |
         oc get route my-node-endpoint -o jsonpath='{.spec.host}'
+
