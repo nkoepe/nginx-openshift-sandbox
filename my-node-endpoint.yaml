@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-node-endpoint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-node-endpoint
+  template:
+    metadata:
+      labels:
+        app: my-node-endpoint
+    spec:
+      containers:
+      - name: my-node-endpoint
+        image: nkoepe/my-node-endpoint:latest
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-node-endpoint
+spec:
+  selector:
+    app: my-node-endpoint
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: my-node-endpoint
+spec:
+  to:
+    kind: Service
+    name: my-node-endpoint
+  port:
+    targetPort: 80

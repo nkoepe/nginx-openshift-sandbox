@@ -1,0 +1,19 @@
+---
+- name: Get deployed endpoint content
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    endpoint_url: "http://my-node-endpoint-pnkoe-dev.apps.rm2.thpm.p1.openshiftapps.com/hello"
+
+  tasks:
+    - name: Fetch the endpoint content
+      uri:
+        url: "{{ endpoint_url }}"
+        method: GET
+        return_content: yes
+      register: response
+
+    - name: Show endpoint response
+      debug:
+        msg: "{{ response.content }}"
